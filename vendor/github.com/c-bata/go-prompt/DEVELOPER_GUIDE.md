@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-Most simple example is below.
+The most simple example is below.
 
 ```go
 package main
@@ -65,11 +65,13 @@ It is difficult to describe by text. So please see below figure:
 * **OptionDescriptionBGColor(prompt.Color)** : default `prompt.Turquoise`
 * **OptionSelectedDescriptionTextColor(prompt.Color)** : default `prompt.White`
 * **OptionSelectedDescriptionBGColor(prompt.Color)** : default `prompt.Cyan`
+* **OptionScrollbarThumbColor** : `prompt.DarkGray`
+* **OptionScrollbarBGColor** : `prompt.Cyan`
 
 **Other Options**
 
 #### `OptionTitle(string)` : default `""`
-Option to set title displayed at the header bar of terminal.
+Option to set a title that wll be displayed on the header bar of terminal.
 
 #### `OptionHistory([]string)` : default `[]string{}`
 Option to set history.
@@ -77,16 +79,19 @@ Option to set history.
 #### `OptionPrefix(string)` : default `"> "`
 Option to set prefix string.
 
+#### `OptionLivePrefix(func() (prefix string, useLivePrefix bool))` : default `nil`
+Option to set a callback function for updating prefix string dynamically.
+
 #### `OptionMaxSuggestions(x uint16)` : default `6`
 The max number of displayed suggestions.
 
 #### `OptionParser(prompt.ConsoleParser)` : default `VT100Parser`
 To set a custom ConsoleParser object.
-An argument should implement ConsoleParser interface.
+The argument should implement ConsoleParser interface.
 
 #### `OptionWriter(prompt.ConsoleWriter)` : default `VT100Writer`
 To set a custom ConsoleWriter object.
-An argument should implement ConsoleWriter interace.
+The argument should implement ConsoleWriter interface.
 
 #### `SwitchKeyBindMode(prompt.KeyBindMode)` : default `prompt.EmacsKeyBindMode`
 To set a key bind mode.
@@ -109,16 +114,16 @@ go-prompt consists of three parts.
 
 ![input-parser animation](https://github.com/c-bata/assets/raw/master/go-prompt/input-parser.gif)
 
-Input Parser only supports only vt100 compatible console now.
+Input Parser only supports vt100-compatible console now.
 
-* Set raw mode.
-* Read standard input.
-* Parse byte array
+* Set as the raw mode.
+* Read a standard input.
+* Parse to byte array
 
 ### Emulate user input
 
 go-prompt contains Buffer class.
-It represents input state by handling user input key.
+It represents input state by handling a key input by user.
 
 `Buffer` object has text and cursor position.
 

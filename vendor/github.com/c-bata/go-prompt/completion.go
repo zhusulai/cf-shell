@@ -16,18 +16,23 @@ const (
 	completionMargin = leftMargin + rightMargin
 )
 
+// Suggest is printed when completing.
 type Suggest struct {
 	Text        string
 	Description string
 }
 
+// CompletionManager manages which suggestion is now selected.
 type CompletionManager struct {
 	selected  int // -1 means nothing one is selected.
 	tmp       []Suggest
 	max       uint16
 	completer Completer
+
+	verticalScroll int
 }
 
+// GetSelectedSuggestion returns the selected item.
 func (c *CompletionManager) GetSelectedSuggestion() (s Suggest, ok bool) {
 	if c.selected == -1 {
 		return Suggest{}, false
@@ -39,33 +44,46 @@ func (c *CompletionManager) GetSelectedSuggestion() (s Suggest, ok bool) {
 	return c.tmp[c.selected], true
 }
 
+// GetSuggestions returns the list of suggestion.
 func (c *CompletionManager) GetSuggestions() []Suggest {
 	return c.tmp
 }
 
+// Reset to select nothing.
 func (c *CompletionManager) Reset() {
 	c.selected = -1
+	c.verticalScroll = 0
 	c.Update(*NewDocument())
 	return
 }
 
+// Update to update the suggestions.
 func (c *CompletionManager) Update(in Document) {
 	c.tmp = c.completer(in)
 	return
 }
 
+// Previous to select the previous suggestion item.
 func (c *CompletionManager) Previous() {
+	if c.verticalScroll == c.selected && c.selected > 0 {
+		c.verticalScroll--
+	}
 	c.selected--
 	c.update()
 	return
 }
 
+// Next to select the next suggestion item.
 func (c *CompletionManager) Next() {
+	if c.verticalScroll+int(c.max)-1 == c.selected {
+		c.verticalScroll++
+	}
 	c.selected++
 	c.update()
 	return
 }
 
+// Completing returns whether the CompletionManager selects something one.
 func (c *CompletionManager) Completing() bool {
 	return c.selected != -1
 }
@@ -75,10 +93,12 @@ func (c *CompletionManager) update() {
 	if len(c.tmp) < max {
 		max = len(c.tmp)
 	}
-	if c.selected >= max {
+
+	if c.selected >= len(c.tmp) {
 		c.Reset()
 	} else if c.selected < -1 {
-		c.selected = max - 1
+		c.selected = len(c.tmp) - 1
+		c.verticalScroll = len(c.tmp) - max
 	}
 }
 
@@ -145,10 +165,13 @@ func formatSuggestions(suggests []Suggest, max int) (new []Suggest, width int) {
 	return new, leftWidth + rightWidth
 }
 
+// NewCompletionManager returns initialized CompletionManager object.
 func NewCompletionManager(completer Completer, max uint16) *CompletionManager {
 	return &CompletionManager{
 		selected:  -1,
 		max:       max,
 		completer: completer,
+
+		verticalScroll: 0,
 	}
 }

@@ -1,102 +1,73 @@
+// +build windows
+
 package prompt
 
 import (
 	"bytes"
-	"log"
-	"syscall"
-	"unsafe"
+	"unicode/utf8"
 
-	"github.com/pkg/term/termios"
+	"github.com/mattn/go-tty"
 )
 
-type VT100Parser struct {
-	fd          int
-	origTermios syscall.Termios
+const maxReadBytes = 1024
+
+// WindowsParser is a ConsoleParser implementation for Win32 console.
+type WindowsParser struct {
+	tty *tty.TTY
 }
 
-func (t *VT100Parser) Setup() error {
-	// Set NonBlocking mode because if syscall.Read block this goroutine, it cannot receive data from stopCh.
-	if err := syscall.SetNonblock(t.fd, true); err != nil {
-		log.Println("[ERROR] Cannot set non blocking mode.")
+// Setup should be called before starting input
+func (p *WindowsParser) Setup() error {
+	t, err := tty.Open()
+	if err != nil {
 		return err
 	}
-	if err := t.setRawMode(); err != nil {
-		log.Println("[ERROR] Cannot set raw mode.")
-		return err
-	}
+	p.tty = t
 	return nil
 }
 
-func (t *VT100Parser) TearDown() error {
-	if err := syscall.SetNonblock(t.fd, false); err != nil {
-		log.Println("[ERROR] Cannot set blocking mode.")
-		return err
-	}
-	if err := t.resetRawMode(); err != nil {
-		log.Println("[ERROR] Cannot reset from raw mode.")
-		return err
-	}
-	return nil
+// TearDown should be called after stopping input
+func (p *WindowsParser) TearDown() error {
+	return p.tty.Close()
 }
 
-func (t *VT100Parser) setRawMode() error {
-	x := t.origTermios.Lflag
-	if x &^= syscall.ICANON; x != 0 && x == t.origTermios.Lflag {
-		// fd is already raw mode
-		return nil
-	}
-	var n syscall.Termios
-	if err := termios.Tcgetattr(uintptr(t.fd), &t.origTermios); err != nil {
-		return err
-	}
-	n = t.origTermios
-	// "&^=" used like: https://play.golang.org/p/8eJw3JxS4O
-	n.Lflag &^= syscall.ECHO | syscall.ICANON | syscall.IEXTEN | syscall.ISIG
-	n.Cc[syscall.VMIN] = 1
-	n.Cc[syscall.VTIME] = 0
-	termios.Tcsetattr(uintptr(t.fd), termios.TCSANOW, &n)
-	return nil
-}
-
-func (t *VT100Parser) resetRawMode() error {
-	if t.origTermios.Lflag == 0 {
-		return nil
-	}
-	return termios.Tcsetattr(uintptr(t.fd), termios.TCSANOW, &t.origTermios)
-}
-
-func (t *VT100Parser) GetKey(b []byte) Key {
+// GetKey returns Key correspond to input byte codes.
+func (p *WindowsParser) GetKey(b []byte) Key {
 	for _, k := range asciiSequences {
-		if bytes.Equal(k.ASCIICode, b) {
+		if bytes.Compare(k.ASCIICode, b) == 0 {
 			return k.Key
 		}
 	}
 	return NotDefined
 }
 
-// winsize is winsize struct got from the ioctl(2) system call.
-type ioctlWinsize struct {
-	Row uint16
-	Col uint16
-	X   uint16 // pixel value
-	Y   uint16 // pixel value
+// Read returns byte array.
+func (p *WindowsParser) Read() ([]byte, error) {
+	buf := make([]byte, maxReadBytes)
+	r, err := p.tty.ReadRune()
+	if err != nil {
+		return []byte{}, err
+	}
+	n := utf8.EncodeRune(buf[:], r)
+	for p.tty.Buffered() && n < maxReadBytes {
+		r, err := p.tty.ReadRune()
+		if err != nil {
+			break
+		}
+		n += utf8.EncodeRune(buf[n:], r)
+	}
+	return buf[:n], nil
 }
 
-// GetWinSize returns winsize struct which is the response of ioctl(2).
-func (t *VT100Parser) GetWinSize() *WinSize {
-	ws := &ioctlWinsize{}
-	retCode, _, errno := syscall.Syscall(
-		syscall.SYS_IOCTL,
-		uintptr(t.fd),
-		uintptr(syscall.TIOCGWINSZ),
-		uintptr(unsafe.Pointer(ws)))
-
-	if int(retCode) == -1 {
-		panic(errno)
+// GetWinSize returns WinSize object to represent width and height of terminal.
+func (p *WindowsParser) GetWinSize() *WinSize {
+	w, h, err := p.tty.Size()
+	if err != nil {
+		panic(err)
 	}
 	return &WinSize{
-		Row: ws.Row,
-		Col: ws.Col,
+		Row: uint16(h),
+		Col: uint16(w),
 	}
 }
 
@@ -237,10 +208,7 @@ var asciiSequences []*ASCIICode = []*ASCIICode{
 	{Key: Ignore, ASCIICode: []byte{0x1b, 0x5b, 0x46}}, // Linux console
 }
 
-var _ ConsoleParser = &VT100Parser{}
-
-func NewVT100StandardInputParser() *VT100Parser {
-	return &VT100Parser{
-		fd: syscall.Stdin,
-	}
+// NewStandardInputParser returns ConsoleParser object to read from stdin.
+func NewStandardInputParser() *WindowsParser {
+	return &WindowsParser{}
 }
