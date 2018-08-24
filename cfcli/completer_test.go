@@ -21,14 +21,14 @@ var _ = Describe("Completer", func() {
 	Context("completions", func() {
 
 		It("should find basic cf commands", func() {
-			all := createCompletions()
+			all := createCommandCompletions()
 			Ω(find(all, "push")).Should(BeTrue())
 			Ω(find(all, "apps")).Should(BeTrue())
 			Ω(find(all, "login")).Should(BeTrue())
 		})
 
 		It("should find all plugin extionsions", func() {
-			all := createCompletions()
+			all := createCommandCompletions()
 			Ω(find(all, "quit")).Should(BeTrue())
 			Ω(find(all, "exit")).Should(BeTrue())
 		})
