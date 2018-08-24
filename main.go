@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/c-bata/go-prompt"
-	"github.com/dgruber/cf-shell/cfcli"
+	"github.com/zhusulai/cf-shell/cfcli"
 
 	"code.cloudfoundry.org/cli/plugin"
 )
@@ -24,9 +25,9 @@ func getTarget(cliConnection plugin.CliConnection) (string, bool) {
 }
 
 func shell(target string, hasTarget bool) {
-	prefix := fmt.Sprintf("cf %c ", 8594)
+	prefix := fmt.Sprintf("cf > ")
 	if hasTarget {
-		prefix = fmt.Sprintf("[%s] %c ", target, 8594)
+		prefix = fmt.Sprintf("[%s] > ", target)
 	}
 	p := prompt.New(
 		cfcli.Executor,
@@ -34,6 +35,7 @@ func shell(target string, hasTarget bool) {
 		prompt.OptionTitle("cf shell: interactive Cloud Foundry command shell"),
 		prompt.OptionPrefix(prefix),
 		prompt.OptionInputTextColor(prompt.Blue),
+		prompt.OptionMaxSuggestion(8),
 	)
 	p.Run()
 	fmt.Println("exiting cf-shell")
@@ -43,7 +45,7 @@ type Shell struct{}
 
 func (c *Shell) Run(cliConnection plugin.CliConnection, args []string) {
 	if args[0] == "shell" {
-		fmt.Printf("Starting interactive shell...\n")
+		fmt.Println("Starting interactive shell...")
 		cfcli.SetCFContext(cliConnection)
 		shell(getTarget(cliConnection))
 	}
@@ -54,7 +56,7 @@ func (c *Shell) GetMetadata() plugin.PluginMetadata {
 		Name: "Shell",
 		Version: plugin.VersionType{
 			Major: 0,
-			Minor: 1,
+			Minor: 2,
 			Build: 0,
 		},
 		Commands: []plugin.Command{
