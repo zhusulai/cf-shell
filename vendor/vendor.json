@@ -769,10 +769,12 @@
 			"revisionTime": "2017-02-24T23:29:49Z"
 		},
 		{
-			"checksumSHA1": "KQAt7/FN7jhROosuLFEWBSudC/c=",
+			"checksumSHA1": "p32+Qu3uXLS3qZLBd/eE1I0G6P8=",
 			"path": "github.com/c-bata/go-prompt",
-			"revision": "a8daf831aa4357c9e2be05aa51f04c66f7907394",
-			"revisionTime": "2017-08-18T00:55:22Z"
+			"revision": "e99fbc797b795e0a7a94affc8d44f6a0350d85f0",
+			"revisionTime": "2018-02-14T08:00:03Z",
+			"version": "v0.2.1",
+			"versionExact": "v0.2.1"
 		},
 		{
 			"checksumSHA1": "uGgysW6Z0EqkBn/9X/XvS076aXc=",
@@ -920,6 +922,12 @@
 			"path": "github.com/mattn/go-runewidth",
 			"revision": "e046b5f4f968dbc9b05b6ea614ca77f25765247b",
 			"revisionTime": "2017-02-24T23:29:49Z"
+		},
+		{
+			"checksumSHA1": "EhfDzLJ9fwmmiN21vzW+m4Ygh74=",
+			"path": "github.com/mattn/go-tty",
+			"revision": "931426f7535ac39720c8909d70ece5a41a2502a6",
+			"revisionTime": "2018-02-19T17:02:47Z"
 		},
 		{
 			"checksumSHA1": "yr1io0ChTlyR3qsSw/iSpn7TGJA=",
@@ -1212,5 +1220,5 @@
 			"revisionTime": "2016-09-28T15:37:09Z"
 		}
 	],
-	"rootPath": "github.com/dgruber/cf-shell"
+	"rootPath": "github.com/zhusulai/cf-shell"
 }
