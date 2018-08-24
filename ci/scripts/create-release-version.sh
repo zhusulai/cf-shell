@@ -5,7 +5,7 @@ git config --global user.email "cf-shell@danielgruber.com"
 git config --global user.name "cf-shell-manual-release-process"
 
 version=`cat version/version`
-gosrc="$GOPATH/src/github.com/dgruber"
+gosrc="$GOPATH/src/github.com/zhusulai"
 
 echo "building version $version"
 
