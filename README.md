@@ -44,16 +44,16 @@ cf uninstall-plugin Shell
 ## Screenshots
 
 Command Description\
-![cli completion](images/example_command_description.png?raw=true "command description" )
+<img src="images/example_command_description.png" width="1194">
 
 Command Arguments]\
-![cli completion](images/example_command_arguments.png?raw=true "command arguments")
+<img src="images/example_command_arguments.png" width="880">
 
 Command Alias\
-![cli completion](images/example_command_alias.png?raw=true "command alias")
+<img src="images/example_command_alias.png" width="966">
 
 Auto Complete App Name\
-![cli completion](images/example_app_name.png?raw=true "app name")
+<img src="images/example_app_name.png" width="339">
 
 Shell Command\
-![cli completion](images/example_shell_command.png?raw=true "shell command")
+<img src="images/example_shell_command.png" width="525">
