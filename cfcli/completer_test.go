@@ -38,7 +38,7 @@ var _ = Describe("Completer", func() {
 	Context("completions helper functions", func() {
 
 		It("should be able to create a usageMap", func() {
-			usageMap := createUsageCompletionsMap()
+			usageMap, _ := createUsageCompletionsMap()
 			Ω(usageMap["push"]).Should(ContainSubstring("[-b BUILDPACK_NAME]"))
 		})
 
